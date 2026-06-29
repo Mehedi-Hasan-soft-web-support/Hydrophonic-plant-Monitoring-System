@@ -56,3 +56,4 @@ async function loadAlerts() {
 }
 
 document.addEventListener("DOMContentLoaded", initAlerts);
+ 
