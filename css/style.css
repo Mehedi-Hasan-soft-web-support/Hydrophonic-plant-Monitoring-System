@@ -498,3 +498,108 @@ th {
   color: var(--text);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
+
+/* ================= IoT Platform Mode ================= */
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 13px 14px;
+  outline: none;
+  resize: vertical;
+}
+
+body.light textarea {
+  background: #fff;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.platform-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 390px) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.stack {
+  display: grid;
+  gap: 18px;
+}
+
+.inline-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.code-box {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.variable-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.variable-card::after {
+  content: "";
+  position: absolute;
+  right: -35px;
+  top: -35px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(72,241,179,0.12);
+}
+
+.variable-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.badge {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.small-note {
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+@media (max-width: 1120px) {
+  .platform-layout,
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
