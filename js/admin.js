@@ -110,7 +110,8 @@ async function createDevice(event) {
   }
 
   if (error) {
-    showToast(error.message || "Device creation failed", "error");
+    console.error("Create device Edge Function error:", error);
+    showToast(error.message || "Device creation failed. Check Edge Function Logs.", "error");
     return;
   }
 
