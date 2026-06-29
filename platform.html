@@ -3,192 +3,845 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IoT Platform | Hydroponic Monitor</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-  <div class="app-shell">
-
-<aside class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">I</div>
-    <span>IoT Platform</span>
-  </div>
-  <nav class="nav">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="platform.html" class="active">IoT Platform</a>
-    <a href="devices.html">Devices</a>
-    <a href="alerts.html">Alerts</a>
-    <a href="admin.html">Admin</a>
-    <a href="profile.html">Profile</a>
-  </nav>
-</aside>
-
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <h1>Blynk / ThingSpeak Style IoT Platform</h1>
-          <p>Create projects, devices and custom variables. Every user gets a separate dashboard.</p>
-        </div>
-        <div class="topbar-actions">
-          <button id="themeBtn" class="secondary-btn">Theme</button>
-          <button id="logoutBtn" class="danger-btn">Logout</button>
-        </div>
-      </header>
-
-      <div class="platform-layout">
-        <section class="stack">
-          <div class="panel">
-            <h2>1. Project</h2>
-            <p class="small-note">A project can be Hydroponic, Smart Farming, Weather Station, Energy Meter, or anything.</p>
-            <div class="form-group">
-              <label>Select Project</label>
-              <select id="projectSelect"></select>
-            </div>
-            <form id="createProjectForm">
-              <div class="form-group">
-                <label>Project Name</label>
-                <input id="projectName" placeholder="Example: Hydroponic Farm 01" required />
-              </div>
-              <div class="form-group">
-                <label>Description</label>
-                <textarea id="projectDescription" rows="3" placeholder="Short project description"></textarea>
-              </div>
-              <button class="primary-btn full" type="submit">Create Project</button>
-            </form>
-          </div>
-
-          <div class="panel">
-            <h2>2. Device</h2>
-            <p class="small-note">Create any ESP32/IoT device inside the selected project. Token will show only once.</p>
-            <div class="form-group">
-              <label>Select Device</label>
-              <select id="deviceSelect"></select>
-            </div>
-            <form id="createDeviceForm">
-              <div class="form-group">
-                <label>Device ID</label>
-                <input id="deviceId" placeholder="esp01" required />
-              </div>
-              <div class="form-group">
-                <label>Device Name</label>
-                <input id="deviceName" placeholder="Tank Sensor 1" required />
-              </div>
-              <div class="grid grid-2">
-                <div class="form-group">
-                  <label>Firmware</label>
-                  <input id="firmwareVersion" placeholder="0.0.0.1" />
-                </div>
-                <div class="form-group">
-                  <label>Location</label>
-                  <input id="locationName" placeholder="Lab / Home" />
-                </div>
-              </div>
-              <button class="primary-btn full" type="submit">Create Device + Token</button>
-            </form>
-            <div id="tokenBox" class="token-box" style="display:none; margin-top:16px;">
-              <strong>Copy device token now</strong>
-              <textarea id="generatedToken" readonly></textarea>
-              <button id="copyTokenBtn" class="secondary-btn" type="button">Copy Token</button>
-            </div>
-          </div>
-
-          <div class="panel">
-            <h2>3. Variable</h2>
-            <p class="small-note">Create variables like temp, humidity, tds, ph, water_level, voltage, status etc.</p>
-            <form id="createVariableForm">
-              <div class="form-group">
-                <label>Variable Key</label>
-                <input id="variableKey" placeholder="water_temp" required />
-              </div>
-              <div class="form-group">
-                <label>Display Name</label>
-                <input id="variableName" placeholder="Water Temperature" required />
-              </div>
-              <div class="grid grid-2">
-                <div class="form-group">
-                  <label>Data Type</label>
-                  <select id="variableType">
-                    <option value="number">Number</option>
-                    <option value="text">Text</option>
-                    <option value="boolean">Boolean</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Unit</label>
-                  <input id="variableUnit" placeholder="°C / ppm / %" />
-                </div>
-              </div>
-              <div class="grid grid-2">
-                <div class="form-group">
-                  <label>Warning Min</label>
-                  <input id="warningMin" type="number" step="0.01" placeholder="Optional" />
-                </div>
-                <div class="form-group">
-                  <label>Warning Max</label>
-                  <input id="warningMax" type="number" step="0.01" placeholder="Optional" />
-                </div>
-              </div>
-              <button class="primary-btn full" type="submit">Create Variable</button>
-            </form>
-          </div>
-        </section>
-
-        <section class="stack">
-          <div class="panel">
-            <div class="inline-actions" style="justify-content:space-between;">
-              <div>
-                <h2>Live Dashboard</h2>
-                <p class="small-note">Custom cards are generated from your variables.</p>
-              </div>
-              <button id="refreshBtn" class="secondary-btn">Refresh</button>
-            </div>
-            <div id="variableCards" class="grid cards-grid" style="margin-top:18px;"></div>
-          </div>
-
-          <div class="panel chart-panel">
-            <h2>Realtime Numeric Chart</h2>
-            <div class="chart-wrap">
-              <canvas id="platformChart"></canvas>
-            </div>
-          </div>
-
-          <div class="panel">
-            <h2>Variables</h2>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Key</th>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Unit</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="variablesTableBody">
-                  <tr><td colspan="5">No variables yet.</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="panel">
-            <h2>Generic ESP32 JSON Format</h2>
-            <p class="small-note">After creating variables, ESP32 should send this format to <code>ingest-generic-reading</code>.</p>
-            <pre id="samplePayload" class="code-box"></pre>
-          </div>
-        </section>
-      </div>
-    </main>
-  </div>
-
+  <title>Mehedi's IoT Academy - Hardcoded Supabase Config</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/supabaseClient.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/platform.js"></script>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(255, 255, 255, 0.075);
+      --panel2: rgba(255, 255, 255, 0.115);
+      --text: #f7fbff;
+      --muted: #a9b7c8;
+      --border: rgba(255, 255, 255, 0.16);
+      --primary: #3ee7b6;
+      --primary2: #54a6ff;
+      --danger: #ff6b6b;
+      --warning: #ffcc66;
+      --success: #50fa7b;
+      --shadow: 0 20px 70px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(62,231,182,.22), transparent 26%),
+        radial-gradient(circle at 80% 0%, rgba(84,166,255,.24), transparent 30%),
+        linear-gradient(135deg, #07111f 0%, #111a2d 55%, #061017 100%);
+      color: var(--text);
+    }
+    body.light {
+      --bg: #f4f8fb;
+      --panel: rgba(255,255,255,.78);
+      --panel2: rgba(255,255,255,.95);
+      --text: #102033;
+      --muted: #5e6c7b;
+      --border: rgba(30,45,65,.13);
+      --shadow: 0 20px 70px rgba(30,45,65,.12);
+      background: linear-gradient(135deg, #edf7ff 0%, #f5fff9 100%);
+    }
+    a { color: inherit; }
+    .wrap { width: min(1380px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 40px; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--panel); backdrop-filter: blur(18px); box-shadow: var(--shadow);
+      position: sticky; top: 12px; z-index: 10;
+    }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .logo { width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), var(--primary2)); display:grid; place-items:center; color:#061017; font-weight:900; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 20px; margin-bottom: 2px; }
+    .small { color: var(--muted); font-size: 13px; }
+    .actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    button, .btn {
+      border: 0; border-radius: 12px; padding: 10px 14px; cursor:pointer; font-weight:800;
+      background: linear-gradient(135deg, var(--primary), var(--primary2)); color: #061017;
+      transition: transform .18s ease, opacity .18s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button.secondary { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+    button.danger { background: rgba(255,107,107,.15); color: var(--danger); border: 1px solid rgba(255,107,107,.35); }
+    button:disabled { opacity: .55; cursor:not-allowed; transform:none; }
+    .grid { display:grid; grid-template-columns: 370px 1fr; gap: 18px; margin-top: 18px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); backdrop-filter: blur(18px); padding: 18px;
+    }
+    .card + .card { margin-top: 18px; }
+    label { display:block; font-size: 13px; font-weight: 800; margin: 12px 0 7px; color: var(--muted); }
+    input, select, textarea {
+      width: 100%; border: 1px solid var(--border); background: rgba(255,255,255,.08); color: var(--text);
+      border-radius: 12px; padding: 11px 12px; outline: none; font: inherit;
+    }
+    body.light input, body.light select, body.light textarea { background: rgba(255,255,255,.95); }
+    textarea { min-height: 70px; resize: vertical; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .hidden { display:none !important; }
+    .tabs { display:flex; gap:8px; margin-bottom: 14px; }
+    .tab { background: var(--panel2); color: var(--text); border:1px solid var(--border); }
+    .tab.active { background: linear-gradient(135deg, var(--primary), var(--primary2)); color:#061017; }
+    .cards { display:grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 14px; }
+    .sensor-card { padding: 16px; border-radius: 16px; background: var(--panel2); border: 1px solid var(--border); min-height: 132px; }
+    .sensor-card h3 { font-size: 14px; color: var(--muted); margin-bottom: 10px; }
+    .value { font-size: 30px; font-weight: 900; line-height: 1.1; }
+    .badge { display:inline-flex; padding: 5px 9px; border-radius: 999px; background: rgba(255,255,255,.1); border:1px solid var(--border); color: var(--muted); font-size: 12px; margin: 4px 4px 0 0; }
+    .status { display:inline-flex; align-items:center; gap:7px; font-size: 12px; font-weight:900; padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; }
+    .dot { width:8px; height:8px; border-radius:99px; background:var(--muted); }
+    .online .dot { background: var(--success); box-shadow:0 0 12px var(--success); }
+    .offline .dot { background: var(--danger); box-shadow:0 0 12px var(--danger); }
+    table { width:100%; border-collapse: collapse; overflow:hidden; border-radius: 14px; }
+    th, td { text-align:left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    code, pre { background: rgba(0,0,0,.22); color: #d8fff3; border-radius: 12px; }
+    pre { padding: 14px; overflow:auto; white-space: pre-wrap; font-size: 12px; border:1px solid var(--border); }
+    body.light code, body.light pre { background: rgba(20,40,70,.08); color:#102033; }
+    .chartBox { height: 330px; }
+    .notice { border:1px solid rgba(255,204,102,.35); background: rgba(255,204,102,.1); color: var(--warning); padding: 12px; border-radius: 14px; font-size: 13px; line-height:1.5; }
+    .successBox { border:1px solid rgba(80,250,123,.35); background: rgba(80,250,123,.1); color: var(--success); padding: 12px; border-radius: 14px; font-size: 13px; line-height:1.5; }
+    .toastWrap { position: fixed; right: 18px; bottom: 18px; display:grid; gap:10px; z-index:9999; }
+    .toast { padding: 13px 15px; border-radius: 14px; background: var(--panel2); border:1px solid var(--border); box-shadow: var(--shadow); min-width: 260px; font-weight:800; }
+    .toast.error { border-color: rgba(255,107,107,.45); color: var(--danger); }
+    .toast.success { border-color: rgba(80,250,123,.45); color: var(--success); }
+    .toast.warn { border-color: rgba(255,204,102,.45); color: var(--warning); }
+    .footer { color: var(--muted); font-size: 12px; margin-top: 24px; text-align:center; }
+    @media (max-width: 1050px) { .grid { grid-template-columns: 1fr; } .cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px) { .topbar { align-items:flex-start; flex-direction:column; } .row { grid-template-columns:1fr; } .cards { grid-template-columns:1fr; } .actions { width:100%; } .actions button { flex:1; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">IoT</div>
+        <div>
+          <h1>Mehedi's IoT Academy</h1>
+          <div class="small"> </div>
+        </div>
+      </div>
+      <div class="actions">
+        <span id="userLabel" class="small">Not logged in</span>
+        <button class="secondary" id="themeBtn">Theme</button>
+        <button class="secondary hidden" id="refreshBtn">Refresh</button>
+        <button class="danger hidden" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+
+    <div id="configView" class="card" style="margin-top:18px;">
+      <h2>Supabase Key Missing</h2>
+      <p class="small">
+        এই version-এ UI থেকে key দেওয়ার option নেই। HTML file-এর script section-এ
+        <b>SUPABASE_ANON_KEY</b> constant-এর ভিতরে আপনার anon/public key বসান।
+      </p>
+      <div class="notice" style="margin-top:14px;">
+        Code-এর ভিতরে এই line খুঁজুন:<br>
+        <code>const SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_PUBLIC_KEY_HERE";</code>
+      </div>
+
+      <!-- These hidden fields are kept only so the script remains backward-compatible. -->
+      <input id="cfgUrl" type="hidden" value="https://ykrjghqybiyohcxkmnwa.supabase.co" />
+      <input id="cfgAnon" type="hidden" />
+      <button id="saveConfigBtn" style="display:none;">Save Config</button>
+      <button id="clearConfigBtn" style="display:none;">Clear</button>
+    </div>
+
+    <div id="authView" class="card hidden" style="margin-top:18px; max-width:760px;">
+      <h2>Step 2: Login / Signup</h2>
+      <div class="tabs">
+        <button class="tab active" id="loginTab">Login</button>
+        <button class="tab" id="signupTab">Signup</button>
+      </div>
+      <form id="authForm">
+        <label>Email</label>
+        <input type="email" id="authEmail" required placeholder="you@example.com" />
+        <label>Password</label>
+        <input type="password" id="authPassword" required placeholder="Minimum 6 characters" />
+        <div class="actions" style="margin-top:14px;">
+          <button type="submit" id="authSubmitBtn">Login</button>
+          <button type="button" class="secondary" id="googleBtn">Sign in with Google</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="appView" class="grid hidden">
+      <aside>
+        <div class="card">
+          <h2>Project</h2>
+          <label>Select Project</label>
+          <select id="projectSelect"></select>
+          <form id="projectForm">
+            <label>New Project Name</label>
+            <input id="projectName" placeholder="Hydroponic Farm / Home Lab" />
+            <label>Description</label>
+            <textarea id="projectDescription" placeholder="Optional"></textarea>
+            <button type="submit" style="width:100%;margin-top:12px;">Create Project</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Device</h2>
+          <label>Select Device</label>
+          <select id="deviceSelect"></select>
+          <form id="deviceForm">
+            <label>Device ID</label>
+            <input id="devicePublicId" placeholder="esp01" />
+            <label>Device Name</label>
+            <input id="deviceName" placeholder="ESP32 Tank 1" />
+            <div class="row">
+              <div>
+                <label>Firmware</label>
+                <input id="firmwareVersion" value="1.0.0" />
+              </div>
+              <div>
+                <label>Location</label>
+                <input id="locationName" placeholder="Lab/Home" />
+              </div>
+            </div>
+            <button type="submit" style="width:100%;margin-top:12px;">Create Device + Token</button>
+          </form>
+          <div id="tokenBox" class="successBox hidden" style="margin-top:14px;">
+            <b>Device token generated. Copy now. It will not show again.</b>
+            <label>Device Token</label>
+            <input id="generatedToken" readonly />
+            <button id="copyTokenBtn" style="width:100%;margin-top:10px;">Copy Token</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Variable</h2>
+          <form id="variableForm">
+            <label>Variable Key</label>
+            <input id="variableKey" placeholder="water_temp / tds / pump_on" />
+            <label>Display Name</label>
+            <input id="variableName" placeholder="Water Temperature" />
+            <div class="row">
+              <div>
+                <label>Type</label>
+                <select id="variableType">
+                  <option value="number">Number</option>
+                  <option value="boolean">Boolean</option>
+                  <option value="text">Text</option>
+                </select>
+              </div>
+              <div>
+                <label>Unit</label>
+                <input id="variableUnit" placeholder="°C / ppm / %" />
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label>Warning Min</label>
+                <input id="warningMin" type="number" step="0.01" />
+              </div>
+              <div>
+                <label>Warning Max</label>
+                <input id="warningMax" type="number" step="0.01" />
+              </div>
+            </div>
+            <button type="submit" style="width:100%;margin-top:12px;">Create Variable</button>
+          </form>
+        </div>
+      </aside>
+
+      <main>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:start;gap:16px;flex-wrap:wrap;">
+            <div>
+              <h2>Live Dashboard</h2>
+              <p class="small">Your custom variables will appear as cards here.</p>
+            </div>
+            <div id="deviceStatus" class="status offline"><span class="dot"></span><span>No device selected</span></div>
+          </div>
+          <div id="variableCards" class="cards" style="margin-top:14px;"></div>
+        </div>
+
+        <div class="card">
+          <h2>Realtime Chart</h2>
+          <div class="chartBox"><canvas id="chart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <h2>Variables Table</h2>
+          <div style="overflow:auto;">
+            <table>
+              <thead><tr><th>Key</th><th>Name</th><th>Type</th><th>Unit</th><th>Status</th></tr></thead>
+              <tbody id="variablesBody"><tr><td colspan="5">No variables yet</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>ESP32 Generic Payload</h2>
+          <p class="small">Device token create করার পর ESP32 request এ এই format ব্যবহার করবেন।</p>
+          <pre id="samplePayload"></pre>
+        </div>
+
+        <div class="card">
+          <h2>Diagnostics</h2>
+          <div class="notice">
+            যদি Project create করতে RLS error আসে, আগে Supabase SQL Editor-এ <b>006_iot_platform_mode.sql</b> এবং <b>008_create_iot_project_rpc_fix.sql</b> run করা আছে কিনা check করুন। Device create করতে হলে Edge Function <b>create-platform-device</b> deploy থাকতে হবে।
+          </div>
+          <pre id="lastError" style="margin-top:12px;">No error yet</pre>
+        </div>
+      </main>
+    </div>
+
+    <div class="footer">Single file hardcoded-config version: HTML + CSS + JS together. Upload this file to GitHub Pages.</div>
+  </div>
+
+  <div class="toastWrap" id="toastWrap"></div>
+
+  <script>
+    // ============================================================
+    // SUPABASE CONFIG - এখানে আপনার key বসাবেন
+    // ============================================================
+    // Supabase Project URL already set from your project ref:
+    const SUPABASE_URL = "https://ykrjghqybiyohcxkmnwa.supabase.co";
+
+    // Supabase Dashboard → Project Settings → API Keys → anon/public/publishable key
+    // service_role key কখনো এখানে দিবেন না।
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcmpnaHF5Yml5b2hjeGttbndhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3Mzk3NTksImV4cCI6MjA5ODMxNTc1OX0.zby8vG0iw_fcjzCu0AQhuqy57S8RhHNlM5uTYabEv4I";
+
+    let supabaseClient = null;
+    let currentUser = null;
+    let currentProjectId = null;
+    let currentDeviceUuid = null;
+    let currentDevicePublicId = null;
+    let variables = [];
+    let realtimeChannel = null;
+    let chart = null;
+    let chartLabels = [];
+    let chartData = {};
+    let authMode = "login";
+
+    const $ = (id) => document.getElementById(id);
+
+    function toast(message, type = "success") {
+      const box = document.createElement("div");
+      box.className = `toast ${type}`;
+      box.textContent = message;
+      $("toastWrap").appendChild(box);
+      setTimeout(() => box.remove(), 4200);
+    }
+
+    function setError(error) {
+      const message = typeof error === "string" ? error : (error?.message || JSON.stringify(error, null, 2));
+      $("lastError") && ($("lastError").textContent = message || "Unknown error");
+      console.error(error);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getConfig() {
+      return {
+        url: SUPABASE_URL,
+        anon: SUPABASE_ANON_KEY
+      };
+    }
+
+    function saveConfig() {
+      toast("এই version-এ config code-এর ভিতরে set করা হয়।", "error");
+    }
+
+    function clearConfig() {
+      toast("Clear করার কিছু নেই। Key code-এর ভিতরে set করা আছে।", "error");
+    }
+
+    function initSupabase() {
+      const cfg = getConfig();
+
+      if ($("cfgUrl")) $("cfgUrl").value = cfg.url;
+      if ($("cfgAnon")) $("cfgAnon").value = cfg.anon;
+
+      if (
+        !cfg.url ||
+        !cfg.anon ||
+        cfg.anon === "PASTE_YOUR_ANON_PUBLIC_KEY_HERE" ||
+        !window.supabase
+      ) {
+        return false;
+      }
+
+      supabaseClient = window.supabase.createClient(cfg.url, cfg.anon, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+
+      return true;
+    }
+
+    function showView(view) {
+      $("configView").classList.toggle("hidden", view !== "config");
+      $("authView").classList.toggle("hidden", view !== "auth");
+      $("appView").classList.toggle("hidden", view !== "app");
+      $("logoutBtn").classList.toggle("hidden", view !== "app");
+      $("refreshBtn").classList.toggle("hidden", view !== "app");
+    }
+
+    async function checkSession() {
+      if (!initSupabase()) {
+        showView("config");
+        return;
+      }
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) setError(error);
+      if (!data?.session) {
+        currentUser = null;
+        $("userLabel").textContent = "Not logged in";
+        showView("auth");
+        return;
+      }
+      currentUser = data.session.user;
+      $("userLabel").textContent = currentUser.email || currentUser.id;
+      showView("app");
+      await loadProjects();
+    }
+
+    async function handleAuth(event) {
+      event.preventDefault();
+      const email = $("authEmail").value.trim();
+      const password = $("authPassword").value;
+      if (!email || !password) return toast("Email and password required", "error");
+      const btn = $("authSubmitBtn");
+      btn.disabled = true;
+      try {
+        const res = authMode === "login"
+          ? await supabaseClient.auth.signInWithPassword({ email, password })
+          : await supabaseClient.auth.signUp({ email, password });
+        if (res.error) throw res.error;
+        toast(authMode === "login" ? "Logged in" : "Signup complete. Check email if verification is enabled.", "success");
+        await checkSession();
+      } catch (e) {
+        setError(e);
+        toast(e.message || "Auth failed", "error");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function googleLogin() {
+      const redirectTo = location.href.split("#")[0].split("?")[0];
+      const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo }
+      });
+      if (error) {
+        setError(error);
+        toast(error.message, "error");
+      }
+    }
+
+    async function logout() {
+      await supabaseClient.auth.signOut();
+      location.reload();
+    }
+
+    function toggleAuthMode(mode) {
+      authMode = mode;
+      $("loginTab").classList.toggle("active", mode === "login");
+      $("signupTab").classList.toggle("active", mode === "signup");
+      $("authSubmitBtn").textContent = mode === "login" ? "Login" : "Signup";
+    }
+
+    function normalizeKey(key) {
+      return key.trim().replace(/\s+/g, "_");
+    }
+
+    async function createProject(event) {
+      event.preventDefault();
+      if (!currentUser) return toast("Login required", "error");
+      const name = $("projectName").value.trim();
+      const description = $("projectDescription").value.trim();
+      if (!name) return toast("Project name required", "error");
+      const btn = event.target.querySelector("button");
+      btn.disabled = true;
+      try {
+        let data = null;
+        let rpcError = null;
+
+        // Try RPC first. This is best when 008_create_iot_project_rpc_fix.sql is installed.
+        const rpc = await supabaseClient.rpc("create_iot_project", {
+          p_name: name,
+          p_description: description || null
+        });
+
+        if (rpc.error) {
+          rpcError = rpc.error;
+          // Fallback: direct insert with owner_id. This works if normal RLS insert policy is installed.
+          const direct = await supabaseClient
+            .from("iot_projects")
+            .insert({ owner_id: currentUser.id, name, description: description || null })
+            .select("*")
+            .single();
+          if (direct.error) throw new Error(`RPC failed: ${rpcError.message}\nDirect insert failed: ${direct.error.message}`);
+          data = direct.data;
+        } else {
+          data = Array.isArray(rpc.data) ? rpc.data[0] : rpc.data;
+        }
+
+        toast("Project created", "success");
+        event.target.reset();
+        await loadProjects(data?.id);
+      } catch (e) {
+        setError(e);
+        toast("Project create failed. Check Diagnostics.", "error");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadProjects(selectId = null) {
+      const select = $("projectSelect");
+      const { data, error } = await supabaseClient
+        .from("iot_projects")
+        .select("id, name, description, created_at")
+        .order("created_at", { ascending: false });
+      if (error) {
+        setError(error);
+        select.innerHTML = `<option value="">Project load failed</option>`;
+        return;
+      }
+      if (!data || data.length === 0) {
+        select.innerHTML = `<option value="">No project yet</option>`;
+        currentProjectId = null;
+        clearDeviceUI();
+        updateSamplePayload();
+        return;
+      }
+      select.innerHTML = data.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
+      currentProjectId = selectId || data[0].id;
+      select.value = currentProjectId;
+      await loadDevices();
+    }
+
+    function clearDeviceUI() {
+      $("deviceSelect").innerHTML = `<option value="">No device yet</option>`;
+      currentDeviceUuid = null;
+      currentDevicePublicId = null;
+      variables = [];
+      renderVariables();
+      renderCards({});
+      setDeviceStatus(null);
+      updateChart([], {});
+    }
+
+    async function loadDevices(selectId = null) {
+      if (!currentProjectId) return clearDeviceUI();
+      const select = $("deviceSelect");
+      const { data, error } = await supabaseClient
+        .from("devices")
+        .select("id, device_id, device_name, status, firmware_version, last_online_at")
+        .eq("project_id", currentProjectId)
+        .order("created_at", { ascending: false });
+      if (error) {
+        setError(error);
+        select.innerHTML = `<option value="">Device load failed</option>`;
+        return;
+      }
+      if (!data || data.length === 0) return clearDeviceUI();
+      select.innerHTML = data.map(d => `<option value="${d.id}" data-deviceid="${escapeHtml(d.device_id)}" data-status="${escapeHtml(d.status || 'offline')}">${escapeHtml(d.device_name)} (${escapeHtml(d.device_id)})</option>`).join("");
+      currentDeviceUuid = selectId || data[0].id;
+      select.value = currentDeviceUuid;
+      const opt = select.options[select.selectedIndex];
+      currentDevicePublicId = opt?.dataset?.deviceid || null;
+      setDeviceStatus(opt?.dataset?.status || "offline");
+      await refreshAll();
+      subscribeRealtime();
+    }
+
+    async function createDevice(event) {
+      event.preventDefault();
+      if (!currentProjectId) return toast("Create/select project first", "error");
+      const body = {
+        project_id: currentProjectId,
+        device_id: $("devicePublicId").value.trim(),
+        device_name: $("deviceName").value.trim(),
+        firmware_version: $("firmwareVersion").value.trim() || null,
+        location_name: $("locationName").value.trim() || null
+      };
+      if (!body.device_id || !body.device_name) return toast("Device ID and name required", "error");
+      const btn = event.target.querySelector("button");
+      btn.disabled = true;
+      try {
+        const { data, error } = await supabaseClient.functions.invoke("create-platform-device", { body });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || "Device create failed");
+        $("tokenBox").classList.remove("hidden");
+        $("generatedToken").value = data.device_token || data.token || "";
+        toast("Device created. Copy token now.", "success");
+        event.target.reset();
+        await loadDevices(data.device_uuid || null);
+      } catch (e) {
+        setError(e);
+        toast("Device create failed. Check Edge Function create-platform-device.", "error");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function createVariable(event) {
+      event.preventDefault();
+      if (!currentProjectId || !currentDeviceUuid) return toast("Select project and device first", "error");
+      const variable_key = normalizeKey($("variableKey").value);
+      const display_name = $("variableName").value.trim();
+      const data_type = $("variableType").value;
+      const unit = $("variableUnit").value.trim();
+      const warningMin = $("warningMin").value;
+      const warningMax = $("warningMax").value;
+      if (!/^[a-zA-Z][a-zA-Z0-9_]{0,39}$/.test(variable_key)) return toast("Variable key invalid", "error");
+      if (!display_name) return toast("Display name required", "error");
+      const { error } = await supabaseClient.from("device_variables").insert({
+        project_id: currentProjectId,
+        device_id: currentDeviceUuid,
+        variable_key,
+        display_name,
+        data_type,
+        unit: unit || null,
+        warning_min: warningMin === "" ? null : Number(warningMin),
+        warning_max: warningMax === "" ? null : Number(warningMax)
+      });
+      if (error) {
+        setError(error);
+        return toast("Variable create failed", "error");
+      }
+      toast("Variable created", "success");
+      event.target.reset();
+      await refreshAll();
+    }
+
+    async function refreshAll() {
+      if (!currentDeviceUuid) return;
+      await loadVariables();
+      await loadLatestReadings();
+      await loadHistory();
+      updateSamplePayload();
+    }
+
+    async function loadVariables() {
+      const { data, error } = await supabaseClient
+        .from("device_variables")
+        .select("*")
+        .eq("device_id", currentDeviceUuid)
+        .order("created_at", { ascending: true });
+      if (error) {
+        setError(error);
+        variables = [];
+      } else {
+        variables = data || [];
+      }
+      renderVariables();
+    }
+
+    function renderVariables() {
+      const body = $("variablesBody");
+      if (!variables.length) {
+        body.innerHTML = `<tr><td colspan="5">No variables yet</td></tr>`;
+        return;
+      }
+      body.innerHTML = variables.map(v => `
+        <tr>
+          <td><code>${escapeHtml(v.variable_key)}</code></td>
+          <td>${escapeHtml(v.display_name)}</td>
+          <td>${escapeHtml(v.data_type)}</td>
+          <td>${escapeHtml(v.unit || "-")}</td>
+          <td><span class="badge">${v.enabled ? "enabled" : "disabled"}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    async function loadLatestReadings() {
+      if (!variables.length) return renderCards({});
+      const { data, error } = await supabaseClient
+        .from("variable_readings")
+        .select("variable_key, numeric_value, text_value, bool_value, recorded_at")
+        .eq("device_id", currentDeviceUuid)
+        .order("recorded_at", { ascending: false })
+        .limit(500);
+      if (error) {
+        setError(error);
+        return;
+      }
+      const latest = {};
+      (data || []).forEach(row => { if (!latest[row.variable_key]) latest[row.variable_key] = row; });
+      renderCards(latest);
+    }
+
+    function readingValue(v, r) {
+      if (!r) return "--";
+      if (v.data_type === "number") return r.numeric_value == null ? "--" : `${Number(r.numeric_value).toFixed(2)}${v.unit ? " " + v.unit : ""}`;
+      if (v.data_type === "boolean") return r.bool_value === true ? "True" : r.bool_value === false ? "False" : "--";
+      return r.text_value || "--";
+    }
+
+    function isWarning(v, r) {
+      if (!r || v.data_type !== "number") return false;
+      const val = Number(r.numeric_value);
+      if (!Number.isFinite(val)) return false;
+      if (v.warning_min !== null && v.warning_min !== undefined && val < Number(v.warning_min)) return true;
+      if (v.warning_max !== null && v.warning_max !== undefined && val > Number(v.warning_max)) return true;
+      return false;
+    }
+
+    function renderCards(latest) {
+      const el = $("variableCards");
+      if (!variables.length) {
+        el.innerHTML = `<div class="notice">No variables yet. Create variable first.</div>`;
+        return;
+      }
+      el.innerHTML = variables.map(v => {
+        const r = latest[v.variable_key];
+        const warn = isWarning(v, r);
+        return `<div class="sensor-card" style="border-color:${warn ? 'rgba(255,204,102,.8)' : 'var(--border)'}">
+          <h3>${escapeHtml(v.display_name)}</h3>
+          <div class="value">${escapeHtml(readingValue(v, r))}</div>
+          <span class="badge">${escapeHtml(v.variable_key)}</span><span class="badge">${escapeHtml(v.data_type)}</span>${warn ? '<span class="badge" style="color:var(--warning)">Warning</span>' : ''}
+          <div class="small" style="margin-top:8px;">${r?.recorded_at ? new Date(r.recorded_at).toLocaleString() : 'No data yet'}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function initChart() {
+      if (chart) return;
+      const ctx = $("chart");
+      chart = new Chart(ctx, {
+        type: "line",
+        data: { labels: [], datasets: [] },
+        options: { responsive: true, maintainAspectRatio: false, interaction: { mode:"index", intersect:false } }
+      });
+    }
+
+    async function loadHistory() {
+      initChart();
+      const numeric = variables.filter(v => v.data_type === "number");
+      if (!numeric.length) return updateChart([], {});
+      const keys = numeric.map(v => v.variable_key);
+      const { data, error } = await supabaseClient
+        .from("variable_readings")
+        .select("variable_key, numeric_value, recorded_at")
+        .eq("device_id", currentDeviceUuid)
+        .in("variable_key", keys)
+        .order("recorded_at", { ascending: false })
+        .limit(240);
+      if (error) {
+        setError(error);
+        return;
+      }
+      const ordered = (data || []).reverse();
+      const labels = [...new Set(ordered.map(r => new Date(r.recorded_at).toLocaleTimeString()))].slice(-40);
+      const series = {};
+      numeric.forEach(v => series[v.variable_key] = []);
+      labels.forEach(label => {
+        numeric.forEach(v => {
+          const row = ordered.find(r => r.variable_key === v.variable_key && new Date(r.recorded_at).toLocaleTimeString() === label);
+          series[v.variable_key].push(row ? Number(row.numeric_value || 0) : null);
+        });
+      });
+      updateChart(labels, series);
+    }
+
+    function updateChart(labels, series) {
+      initChart();
+      chartLabels = labels || [];
+      chartData = series || {};
+      const numeric = variables.filter(v => v.data_type === "number");
+      chart.data.labels = chartLabels;
+      chart.data.datasets = numeric.map(v => ({
+        label: `${v.display_name}${v.unit ? " (" + v.unit + ")" : ""}`,
+        data: chartData[v.variable_key] || [],
+        tension: .35
+      }));
+      chart.update();
+    }
+
+    function subscribeRealtime() {
+      if (!currentDeviceUuid) return;
+      if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+      realtimeChannel = supabaseClient
+        .channel(`variable-readings-${currentDeviceUuid}`)
+        .on("postgres_changes", {
+          event: "INSERT",
+          schema: "public",
+          table: "variable_readings",
+          filter: `device_id=eq.${currentDeviceUuid}`
+        }, () => refreshAll())
+        .subscribe();
+    }
+
+    function setDeviceStatus(status) {
+      const el = $("deviceStatus");
+      const s = status || "offline";
+      el.className = `status ${s === "online" ? "online" : "offline"}`;
+      el.innerHTML = `<span class="dot"></span><span>${escapeHtml(s)}</span>`;
+    }
+
+    function updateSamplePayload() {
+      const cfg = getConfig();
+      const endpoint = `${cfg.url}/functions/v1/ingest-generic-reading`;
+      const values = {};
+      variables.forEach(v => {
+        if (v.data_type === "number") values[v.variable_key] = 25.5;
+        else if (v.data_type === "boolean") values[v.variable_key] = true;
+        else values[v.variable_key] = "OK";
+      });
+      if (Object.keys(values).length === 0) {
+        values.water_temp = 25.5;
+        values.tds = 650;
+      }
+      $("samplePayload").textContent = `POST ${endpoint}\nHeaders:\n  Content-Type: application/json\n  x-device-id: ${currentDevicePublicId || 'your_device_id'}\n  x-device-token: YOUR_DEVICE_TOKEN\n\nBody:\n${JSON.stringify({
+        device_id: currentDevicePublicId || "your_device_id",
+        firmware_version: "1.0.0",
+        rssi: -55,
+        battery_voltage: 4.1,
+        values
+      }, null, 2)}`;
+    }
+
+    function copyToken() {
+      const token = $("generatedToken").value;
+      if (!token) return;
+      navigator.clipboard.writeText(token);
+      toast("Token copied", "success");
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      $("saveConfigBtn").addEventListener("click", saveConfig);
+      $("clearConfigBtn").addEventListener("click", clearConfig);
+      $("authForm").addEventListener("submit", handleAuth);
+      $("googleBtn").addEventListener("click", googleLogin);
+      $("loginTab").addEventListener("click", () => toggleAuthMode("login"));
+      $("signupTab").addEventListener("click", () => toggleAuthMode("signup"));
+      $("logoutBtn").addEventListener("click", logout);
+      $("themeBtn").addEventListener("click", () => document.body.classList.toggle("light"));
+      $("refreshBtn").addEventListener("click", refreshAll);
+      $("projectForm").addEventListener("submit", createProject);
+      $("deviceForm").addEventListener("submit", createDevice);
+      $("variableForm").addEventListener("submit", createVariable);
+      $("copyTokenBtn").addEventListener("click", copyToken);
+      $("projectSelect").addEventListener("change", async e => { currentProjectId = e.target.value; await loadDevices(); });
+      $("deviceSelect").addEventListener("change", async e => {
+        currentDeviceUuid = e.target.value;
+        const opt = e.target.options[e.target.selectedIndex];
+        currentDevicePublicId = opt?.dataset?.deviceid || null;
+        setDeviceStatus(opt?.dataset?.status || "offline");
+        await refreshAll();
+        subscribeRealtime();
+      });
+
+      const cfg = getConfig();
+      $("cfgUrl").value = cfg.url;
+      $("cfgAnon").value = cfg.anon;
+      await checkSession();
+      updateSamplePayload();
+    });
+  </script>
 </body>
 </html>
-
