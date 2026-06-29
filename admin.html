@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel | Hydroponic Monitor</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">H</div>
+    <span>Hydroponic Monitor</span>
+  </div>
+  <nav class="nav">
+    <a href="dashboard.html" >Dashboard</a>
+    <a href="devices.html">Devices</a>
+    <a href="alerts.html">Alerts</a>
+    <a href="admin.html" class="active">Admin</a>
+    <a href="profile.html">Profile</a>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Admin Panel</h1>
+          <p>Manage users, devices, alerts and system activity.</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeBtn" class="secondary-btn">Theme</button>
+          <button id="logoutBtn" class="danger-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="grid cards-grid">
+        <div class="card">
+          <h3>Total Users</h3>
+          <div id="totalUsers" class="sensor-value">--</div>
+        </div>
+        <div class="card">
+          <h3>Total Devices</h3>
+          <div id="totalDevices" class="sensor-value">--</div>
+        </div>
+        <div class="card">
+          <h3>Total Alerts</h3>
+          <div id="totalAlerts" class="sensor-value">--</div>
+        </div>
+      </section>
+
+      <section class="panel" style="margin-top:18px;">
+        <h2>Create Device</h2>
+        <form id="createDeviceForm" class="grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
+          <input id="newDeviceId" placeholder="Device ID, e.g. ESP32-HYDRO-001" required />
+          <input id="newDeviceName" placeholder="Device Name" required />
+          <input id="newFirmwareVersion" placeholder="Firmware Version, e.g. 1.0.0" />
+          <input id="newLocationName" placeholder="Location, e.g. Greenhouse 1" />
+          <button class="primary-btn" type="submit" style="grid-column: 1 / -1;">Create + Generate API Token</button>
+        </form>
+
+        <div id="generatedTokenBox" class="token-box" style="display:none; margin-top:14px;">
+          <h3>New Device API Token</h3>
+          <p style="color:var(--muted);">Copy this token now and paste it into ESP32 firmware as DEVICE_TOKEN. It will not be shown again.</p>
+          <textarea id="generatedTokenText" readonly rows="3"></textarea>
+          <button id="copyTokenBtn" class="secondary-btn" type="button">Copy Token</button>
+        </div>
+
+        <p style="color:var(--muted);">
+          Device token is generated securely through the protected Supabase Edge Function: create-device.
+        </p>
+      </section>
+
+      <section class="panel" style="margin-top:18px;">
+        <h2>Users</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" style="margin-top:18px;">
+        <h2>Devices</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Device ID</th>
+                <th>Status</th>
+                <th>Firmware</th>
+                <th>Last Online</th>
+              </tr>
+            </thead>
+            <tbody id="devicesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

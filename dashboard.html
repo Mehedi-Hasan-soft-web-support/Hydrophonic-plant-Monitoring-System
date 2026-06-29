@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hydroponic Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">H</div>
+    <span>Hydroponic Monitor</span>
+  </div>
+  <nav class="nav">
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="devices.html">Devices</a>
+    <a href="alerts.html">Alerts</a>
+    <a href="admin.html">Admin</a>
+    <a href="profile.html">Profile</a>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Live Dashboard</h1>
+          <p>Realtime hydroponic water and environment monitoring.</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeBtn" class="secondary-btn">Theme</button>
+          <button onclick="exportCsv()" class="secondary-btn">Export CSV</button>
+          <div class="user-chip">
+            <img id="avatar" src="https://api.dicebear.com/8.x/initials/svg?seed=User" alt="avatar" />
+            <div>
+              <strong id="userName">User</strong><br />
+              <small id="userEmail">email</small>
+            </div>
+          </div>
+          <button id="logoutBtn" class="danger-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="device-row">
+        <div class="panel">
+          <label>Select Device</label>
+          <select id="deviceSelect"></select>
+        </div>
+        <div class="panel">
+          <small>Last Update</small>
+          <div id="lastUpdate" class="sensor-value">--</div>
+        </div>
+      </section>
+
+      <section class="grid cards-grid">
+        <div class="sensor-card">
+          <h3>Water Temperature</h3>
+          <div id="waterTempValue" class="sensor-value">--</div>
+          <small>DS18B20</small>
+        </div>
+        <div class="sensor-card">
+          <h3>Air Temperature</h3>
+          <div id="airTempValue" class="sensor-value">--</div>
+          <small>DHT11</small>
+        </div>
+        <div class="sensor-card">
+          <h3>Humidity</h3>
+          <div id="humidityValue" class="sensor-value">--</div>
+          <small>DHT11</small>
+        </div>
+        <div class="sensor-card">
+          <h3>TDS</h3>
+          <div id="tdsValue" class="sensor-value">--</div>
+          <small>Water nutrient level</small>
+        </div>
+        <div class="sensor-card">
+          <h3>Turbidity</h3>
+          <div id="turbidityValue" class="sensor-value">--</div>
+          <small>Water clarity</small>
+        </div>
+        <div class="sensor-card">
+          <h3>Battery</h3>
+          <div id="batteryValue" class="sensor-value">--</div>
+          <small>Future support</small>
+        </div>
+        <div class="sensor-card">
+          <h3>Signal</h3>
+          <div id="rssiValue" class="sensor-value">--</div>
+          <small>WiFi RSSI</small>
+        </div>
+      </section>
+
+      <section class="panel chart-panel" style="margin-top:18px;">
+        <h2>Realtime Sensor Chart</h2>
+        <div class="chart-wrap">
+          <canvas id="liveChart"></canvas>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

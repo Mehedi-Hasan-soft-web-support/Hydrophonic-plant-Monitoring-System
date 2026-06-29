@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Devices | Hydroponic Monitor</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">H</div>
+    <span>Hydroponic Monitor</span>
+  </div>
+  <nav class="nav">
+    <a href="dashboard.html" >Dashboard</a>
+    <a href="devices.html" class="active">Devices</a>
+    <a href="alerts.html">Alerts</a>
+    <a href="admin.html">Admin</a>
+    <a href="profile.html">Profile</a>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Devices</h1>
+          <p>Assigned ESP32 device list and live status.</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeBtn" class="secondary-btn">Theme</button>
+          <button id="logoutBtn" class="danger-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="panel">
+        <p>This page is ready for expansion. Device table is available in the Admin page.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      await requireAuth();
+      document.getElementById("logoutBtn").addEventListener("click", logout);
+      document.getElementById("themeBtn").addEventListener("click", toggleTheme);
+    });
+  </script>
+</body>
+</html>
