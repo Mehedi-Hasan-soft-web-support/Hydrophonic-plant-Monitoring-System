@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IoT Platform | Hydroponic Monitor</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">I</div>
+    <span>IoT Platform</span>
+  </div>
+  <nav class="nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="platform.html" class="active">IoT Platform</a>
+    <a href="devices.html">Devices</a>
+    <a href="alerts.html">Alerts</a>
+    <a href="admin.html">Admin</a>
+    <a href="profile.html">Profile</a>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Blynk / ThingSpeak Style IoT Platform</h1>
+          <p>Create projects, devices and custom variables. Every user gets a separate dashboard.</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeBtn" class="secondary-btn">Theme</button>
+          <button id="logoutBtn" class="danger-btn">Logout</button>
+        </div>
+      </header>
+
+      <div class="platform-layout">
+        <section class="stack">
+          <div class="panel">
+            <h2>1. Project</h2>
+            <p class="small-note">A project can be Hydroponic, Smart Farming, Weather Station, Energy Meter, or anything.</p>
+            <div class="form-group">
+              <label>Select Project</label>
+              <select id="projectSelect"></select>
+            </div>
+            <form id="createProjectForm">
+              <div class="form-group">
+                <label>Project Name</label>
+                <input id="projectName" placeholder="Example: Hydroponic Farm 01" required />
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea id="projectDescription" rows="3" placeholder="Short project description"></textarea>
+              </div>
+              <button class="primary-btn full" type="submit">Create Project</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <h2>2. Device</h2>
+            <p class="small-note">Create any ESP32/IoT device inside the selected project. Token will show only once.</p>
+            <div class="form-group">
+              <label>Select Device</label>
+              <select id="deviceSelect"></select>
+            </div>
+            <form id="createDeviceForm">
+              <div class="form-group">
+                <label>Device ID</label>
+                <input id="deviceId" placeholder="esp01" required />
+              </div>
+              <div class="form-group">
+                <label>Device Name</label>
+                <input id="deviceName" placeholder="Tank Sensor 1" required />
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label>Firmware</label>
+                  <input id="firmwareVersion" placeholder="0.0.0.1" />
+                </div>
+                <div class="form-group">
+                  <label>Location</label>
+                  <input id="locationName" placeholder="Lab / Home" />
+                </div>
+              </div>
+              <button class="primary-btn full" type="submit">Create Device + Token</button>
+            </form>
+            <div id="tokenBox" class="token-box" style="display:none; margin-top:16px;">
+              <strong>Copy device token now</strong>
+              <textarea id="generatedToken" readonly></textarea>
+              <button id="copyTokenBtn" class="secondary-btn" type="button">Copy Token</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>3. Variable</h2>
+            <p class="small-note">Create variables like temp, humidity, tds, ph, water_level, voltage, status etc.</p>
+            <form id="createVariableForm">
+              <div class="form-group">
+                <label>Variable Key</label>
+                <input id="variableKey" placeholder="water_temp" required />
+              </div>
+              <div class="form-group">
+                <label>Display Name</label>
+                <input id="variableName" placeholder="Water Temperature" required />
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label>Data Type</label>
+                  <select id="variableType">
+                    <option value="number">Number</option>
+                    <option value="text">Text</option>
+                    <option value="boolean">Boolean</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Unit</label>
+                  <input id="variableUnit" placeholder="°C / ppm / %" />
+                </div>
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label>Warning Min</label>
+                  <input id="warningMin" type="number" step="0.01" placeholder="Optional" />
+                </div>
+                <div class="form-group">
+                  <label>Warning Max</label>
+                  <input id="warningMax" type="number" step="0.01" placeholder="Optional" />
+                </div>
+              </div>
+              <button class="primary-btn full" type="submit">Create Variable</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="stack">
+          <div class="panel">
+            <div class="inline-actions" style="justify-content:space-between;">
+              <div>
+                <h2>Live Dashboard</h2>
+                <p class="small-note">Custom cards are generated from your variables.</p>
+              </div>
+              <button id="refreshBtn" class="secondary-btn">Refresh</button>
+            </div>
+            <div id="variableCards" class="grid cards-grid" style="margin-top:18px;"></div>
+          </div>
+
+          <div class="panel chart-panel">
+            <h2>Realtime Numeric Chart</h2>
+            <div class="chart-wrap">
+              <canvas id="platformChart"></canvas>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Variables</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Unit</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="variablesTableBody">
+                  <tr><td colspan="5">No variables yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Generic ESP32 JSON Format</h2>
+            <p class="small-note">After creating variables, ESP32 should send this format to <code>ingest-generic-reading</code>.</p>
+            <pre id="samplePayload" class="code-box"></pre>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/platform.js"></script>
+</body>
+</html>
