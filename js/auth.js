@@ -102,3 +102,4 @@ async function initAuthPage() {
 }
 
 document.addEventListener("DOMContentLoaded", initAuthPage);
+ 
